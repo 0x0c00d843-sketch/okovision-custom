@@ -1,0 +1,51 @@
+##############################################
+# Okovision LIGHT - Backend uniquement
+# Test sur Pi Zero 2W
+# Image Alpine (~80 MB)
+##############################################
+
+services:
+  okovision-backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile.light
+    container_name: okovision-light
+    restart: unless-stopped
+    
+    environment:
+      - BDD_IP=${BDD_IP:-192.168.1.200}
+      - BDD_USER=${BDD_USER:-okovision}
+      - BDD_PASS=${BDD_PASS:-changeme}
+      - BDD_SCHEMA=${BDD_SCHEMA:-okovision}
+      - CHAUDIERE_IP=${CHAUDIERE_IP:-192.168.1.100}
+      - CHAUDIERE_PORT=${CHAUDIERE_PORT:-4321}
+      - TC_REF=${TC_REF:-18}
+      - POIDS_PELLET=${POIDS_PELLET:-350}
+      - SURFACE_MAISON=${SURFACE_MAISON:-130}
+      - TIMEZONE=${TIMEZONE:-Europe/Paris}
+      - HAS_SILO=${HAS_SILO:-1}
+      - SILO_SIZE=${SILO_SIZE:-5000}
+      - ASHTRAY=${ASHTRAY:-1000}
+      - LANG=${LANG:-fr}
+      
+    volumes:
+      - okovision-logs:/app/_logs
+      - okovision-tmp:/app/_tmp
+    
+    # Pas de port exposé - backend uniquement
+    
+    networks:
+      - okovision-net
+    
+    healthcheck:
+      test: ["CMD", "pgrep", "crond"]
+      interval: 60s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  okovision-logs:
+  okovision-tmp:
+
+networks:
+  okovision-net:

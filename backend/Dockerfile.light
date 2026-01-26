@@ -1,0 +1,38 @@
+##############################################
+# Dockerfile Okovision LIGHT
+# Backend PHP CLI uniquement (sans Apache)
+# Base: Alpine (~80 MB vs ~480 MB)
+##############################################
+
+FROM php:8.2-cli-alpine
+
+LABEL maintainer="HomeLab"
+LABEL description="Okovision Backend Light - Import CSV uniquement"
+
+# Extensions PHP minimales
+RUN docker-php-ext-install mysqli
+
+# Installer dcron + curl (pour healthcheck)
+RUN apk add --no-cache dcron curl
+
+# Créer structure
+RUN mkdir -p /app/_logs /app/_tmp
+
+# Copier uniquement les fichiers backend nécessaires
+COPY source/_include/ /app/_include/
+COPY source/cron.php /app/
+
+# Script d'entrypoint
+COPY backend/docker-entrypoint-light.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint-light.sh
+
+# Crontab - import toutes les heures à 22 min
+RUN echo "22 * * * * cd /app && /usr/local/bin/php cron.php >> /app/_logs/cron.log 2>&1" > /etc/crontabs/root
+
+# Permissions
+RUN chmod -R 777 /app/_logs /app/_tmp
+
+WORKDIR /app
+
+ENTRYPOINT ["docker-entrypoint-light.sh"]
+CMD ["crond", "-f", "-l", "2"]

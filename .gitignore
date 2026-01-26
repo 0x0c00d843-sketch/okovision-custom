@@ -1,0 +1,16 @@
+# Secrets
+.env
+
+# Config générée (contient des secrets, générée par docker-entrypoint.sh)
+config.php
+config.json
+
+# Logs
+*.log
+_logs/
+
+# Fichiers temporaires
+_tmp/
+
+# Images Docker exportées
+*.tar.gz

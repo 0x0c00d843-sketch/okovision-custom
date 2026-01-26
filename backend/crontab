@@ -1,0 +1,13 @@
+# ===========================================
+# OKOVISION - Cron Import CSV Chaudière
+# ===========================================
+
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+# Import des données chaudière toutes les heures à 22 minutes
+22 * * * * www-data cd /var/www/okovision && /usr/local/bin/php cron.php >> /var/www/okovision/_logs/cron.log 2>&1
+
+# Nettoyage des logs une fois par semaine (dimanche 3h du matin)
+0 3 * * 0 www-data find /var/www/okovision/_logs -name "*.log" -mtime +30 -delete 2>/dev/null
+
