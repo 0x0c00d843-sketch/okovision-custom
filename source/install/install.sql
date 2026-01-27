@@ -32,13 +32,21 @@ CREATE TABLE IF NOT EXISTS `oko_dateref` (
 -- Export de la structure de table okovision. oko_resume_day
 DROP TABLE IF EXISTS `oko_resume_day`;
 CREATE TABLE IF NOT EXISTS `oko_resume_day` (
-  `jour` date NOT NULL,
+    `jour` date NOT NULL,
   `tc_ext_max` decimal(3,1) DEFAULT NULL,
   `tc_ext_min` decimal(3,1) DEFAULT NULL,
+  `tc_ext_moy` decimal(4,2) DEFAULT NULL,
+  `tc_ext_etendu` decimal(4,2) DEFAULT NULL,
   `conso_kg` decimal(6,2) DEFAULT NULL,
   `conso_ecs_kg` decimal(6,2) DEFAULT NULL,
   `dju` decimal(6,2) DEFAULT NULL,
+  `djmoy` decimal(6,2) DEFAULT NULL,
+  `dje` decimal(6,2) DEFAULT NULL,
   `nb_cycle` int(1) unsigned zerofill DEFAULT '0',
+  `tps_comb` smallint DEFAULT NULL,
+  `tps_cycle_complet` smallint DEFAULT NULL,
+  `duree_moy_comb` decimal(5,1) DEFAULT NULL,
+  `duree_moy_cycle` decimal(5,1) DEFAULT NULL,
   PRIMARY KEY (`jour`)
 ) ENGINE=MYISAM DEFAULT CHARSET=utf8;
 
