@@ -320,27 +320,33 @@ public function getTcMoyByDay($jour, $timeStart = null, $timeEnd = null)
         return $result->fetch_object();
     }
 
-    public function getIndicByMonth($month, $year)
-    {
-        $q = 'SELECT max(Tc_ext_max) as tcExtMax, min(Tc_ext_min) as tcExtMin, '.
-                'sum(conso_kg) as consoPellet, sum(conso_ecs_kg) as consoEcsPellet, sum(dju) as dju, sum(nb_cycle) as nbCycle '.
-                'FROM oko_resume_day '.
-                'WHERE MONTH(oko_resume_day.jour) = '.$month.' AND '.
-                'YEAR(oko_resume_day.jour) = '.$year;
+public function getIndicByMonth($month, $year)
+{
+    $q = 'SELECT max(Tc_ext_max) as tcExtMax, min(Tc_ext_min) as tcExtMin, '.
+            'ROUND(AVG(tc_ext_moy), 2) as tcExtMoy, '.
+            'sum(conso_kg) as consoPellet, sum(conso_ecs_kg) as consoEcsPellet, '.
+            'sum(dju) as dju, sum(djmoy) as djmoy, sum(dje) as dje, sum(nb_cycle) as nbCycle '.
+            'FROM oko_resume_day '.
+            'WHERE MONTH(oko_resume_day.jour) = '.$month.' AND '.
+            'YEAR(oko_resume_day.jour) = '.$year;
 
-        $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$q);
+    $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$q);
 
-        $result = $this->query($q);
-        $r = $result->fetch_object();
+    $result = $this->query($q);
+    $r = $result->fetch_object();
 
-        $this->sendResponse(json_encode(['tcExtMax' => $r->tcExtMax,
-            'tcExtMin' => $r->tcExtMin,
-            'consoPellet' => $r->consoPellet,
-            'consoEcsPellet' => $r->consoEcsPellet,
-            'dju' => $r->dju,
-            'nbCycle' => $r->nbCycle,
-        ], JSON_NUMERIC_CHECK));
-    }
+    $this->sendResponse(json_encode([
+        'tcExtMax' => $r->tcExtMax,
+        'tcExtMin' => $r->tcExtMin,
+        'tcExtMoy' => $r->tcExtMoy,
+        'consoPellet' => $r->consoPellet,
+        'consoEcsPellet' => $r->consoEcsPellet,
+        'dju' => $r->dju,
+        'djmoy' => $r->djmoy,
+        'dje' => $r->dje,
+        'nbCycle' => $r->nbCycle,
+    ], JSON_NUMERIC_CHECK));
+}
 
     /**
      * Calculates how much is left in the silo (not now : when it will be empty (if enough data available)).
@@ -536,27 +542,31 @@ public function getTcMoyByDay($jour, $timeStart = null, $timeEnd = null)
         $this->sendResponse(json_encode($resultat, JSON_NUMERIC_CHECK));
     }
 
-    public function getTotalSaison($idSaison)
-    {
-        $q = 'SELECT max(Tc_ext_max) as tcExtMax, min(Tc_ext_min) as tcExtMin, '.
-                'sum(conso_kg) as consoPellet, sum(conso_ecs_kg) as consoEcsPellet, sum(dju) as dju, sum(nb_cycle) as nbCycle '.
-                'FROM oko_resume_day, oko_saisons '.
-                'WHERE oko_saisons.id = '.$idSaison.' '.
-                'AND oko_resume_day.jour BETWEEN oko_saisons.date_debut AND oko_saisons.date_fin ;';
+public function getTotalSaison($idSaison)
+{
+    $q = 'SELECT max(Tc_ext_max) as tcExtMax, min(Tc_ext_min) as tcExtMin, '.
+            'sum(conso_kg) as consoPellet, sum(conso_ecs_kg) as consoEcsPellet, '.
+            'sum(dju) as dju, sum(djmoy) as djmoy, sum(dje) as dje, sum(nb_cycle) as nbCycle '.
+            'FROM oko_resume_day, oko_saisons '.
+            'WHERE oko_saisons.id = '.$idSaison.' '.
+            'AND oko_resume_day.jour BETWEEN oko_saisons.date_debut AND oko_saisons.date_fin ;';
 
-        $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$q);
+    $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$q);
 
-        $result = $this->query($q);
-        $r = $result->fetch_object();
+    $result = $this->query($q);
+    $r = $result->fetch_object();
 
-        $this->sendResponse(json_encode(['tcExtMax' => $r->tcExtMax,
-            'tcExtMin' => $r->tcExtMin,
-            'consoPellet' => $r->consoPellet,
-            'consoEcsPellet' => $r->consoEcsPellet,
-            'dju' => $r->dju,
-            'nbCycle' => $r->nbCycle,
-        ], JSON_NUMERIC_CHECK));
-    }
+    $this->sendResponse(json_encode([
+        'tcExtMax' => $r->tcExtMax,
+        'tcExtMin' => $r->tcExtMin,
+        'consoPellet' => $r->consoPellet,
+        'consoEcsPellet' => $r->consoEcsPellet,
+        'dju' => $r->dju,
+        'djmoy' => $r->djmoy,
+        'dje' => $r->dje,
+        'nbCycle' => $r->nbCycle,
+    ], JSON_NUMERIC_CHECK));
+}
 
     public function getSyntheseSaison($idSaison)
     {
@@ -600,31 +610,38 @@ public function getTcMoyByDay($jour, $timeStart = null, $timeEnd = null)
         $this->sendResponse('{ "grapheData": ['.$resultat.']}');
     }
 
-    public function getSyntheseSaisonTable($idSaison)
-    {
-        $q = "select DATE_FORMAT(oko_dateref.jour,'%m-%Y') as mois, ".
-                    "IFNULL(sum(oko_resume_day.nb_cycle),'-') as nbCycle, ".
-                    "IFNULL(sum(oko_resume_day.conso_kg),'-') as conso, ".
-                    "IFNULL(sum(oko_resume_day.conso_ecs_kg),'-') as conso_ecs, ".
-                    "IFNULL(sum(oko_resume_day.dju),'-') as dju, ".
-                    'IFNULL(round( ((sum(oko_resume_day.conso_kg) * 1000) / sum(oko_resume_day.dju) / '.SURFACE_HOUSE."),2),'-') as g_dju_m ".
-                    'FROM oko_saisons, oko_resume_day '.
-                    'RIGHT JOIN oko_dateref ON oko_dateref.jour = oko_resume_day.jour '.
-                    'WHERE oko_saisons.id='.$idSaison.' AND oko_dateref.jour BETWEEN oko_saisons.date_debut AND oko_saisons.date_fin '.
-                    'GROUP BY MONTH(oko_dateref.jour) '.
-                    'ORDER BY YEAR(oko_dateref.jour), MONTH(oko_dateref.jour) ASC;';
+public function getSyntheseSaisonTable($idSaison)
+{
+    $q = "select DATE_FORMAT(oko_dateref.jour,'%m-%Y') as mois, ".
+                "IFNULL(sum(oko_resume_day.nb_cycle),'-') as nbCycle, ".
+                "IFNULL(ROUND(AVG(oko_resume_day.duree_moy_comb),1),'-') as dureeMoyComb, ".
+                "IFNULL(ROUND(AVG(oko_resume_day.duree_moy_cycle),1),'-') as dureeMoyCycle, ".
+                "IFNULL(sum(oko_resume_day.dju),'-') as dju, ".
+                "IFNULL(sum(oko_resume_day.djmoy),'-') as djmoy, ".
+                "IFNULL(sum(oko_resume_day.dje),'-') as dje, ".
+                "IFNULL(sum(oko_resume_day.conso_kg),'-') as conso, ".
+                "IFNULL(sum(oko_resume_day.conso_ecs_kg),'-') as conso_ecs, ".
+                'IFNULL(round( ((sum(oko_resume_day.conso_kg) * 1000) / NULLIF(sum(oko_resume_day.dju),0) / '.SURFACE_HOUSE."),2),'-') as g_dju_m, ".
+                'IFNULL(round( ((sum(oko_resume_day.conso_kg) * 1000) / NULLIF(sum(oko_resume_day.djmoy),0) / '.SURFACE_HOUSE."),2),'-') as g_djmoy_m, ".
+                'IFNULL(round( ((sum(oko_resume_day.conso_kg) * 1000) / NULLIF(sum(oko_resume_day.dje),0) / '.SURFACE_HOUSE."),2),'-') as g_dje_m ".
+                'FROM oko_saisons, oko_resume_day '.
+                'RIGHT JOIN oko_dateref ON oko_dateref.jour = oko_resume_day.jour '.
+                'WHERE oko_saisons.id='.$idSaison.' AND oko_dateref.jour BETWEEN oko_saisons.date_debut AND oko_saisons.date_fin '.
+                'GROUP BY MONTH(oko_dateref.jour) '.
+                'ORDER BY YEAR(oko_dateref.jour), MONTH(oko_dateref.jour) ASC;';
 
-        $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$q);
+    $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$q);
 
-        $result = $this->query($q);
+    $result = $this->query($q);
 
-        $data = [];
-        while ($r = $result->fetch_object()) {
-            $data[] = $r;
-        }
-        $this->sendResponse(json_encode($data, JSON_NUMERIC_CHECK));
+    $data = [];
+    while ($r = $result->fetch_object()) {
+        $data[] = $r;
     }
+    $this->sendResponse(json_encode($data, JSON_NUMERIC_CHECK));
+}
 
+    
     public function getAnnotationByDay($day)
     {
         $q = "SELECT timestamp * 1000 as timestamp, description FROM oko_boiler where DATE_FORMAT(FROM_UNIXTIME(timestamp), '%Y-%m-%d') LIKE '{$day}' ;";
