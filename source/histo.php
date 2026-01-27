@@ -64,6 +64,8 @@
 			</div>
 			<div class="col-md-12">
 				<span class="glyphicon glyphicon-cloud"></span> <?php echo session::getInstance()->getLabel('lang.text.page.label.dju'); ?> <span id="dju" class="label label-primary">0</span> &nbsp;&nbsp;
+				<span class="glyphicon glyphicon-cloud"></span> DJmoy <span id="djmoy" class="label label-info">0</span> &nbsp;&nbsp;
+				<span class="glyphicon glyphicon-cloud"></span> DJe <span id="dje" class="label label-info">0</span> &nbsp;&nbsp;
 				<span class="glyphicon glyphicon-hand-right"></span> <?php echo session::getInstance()->getLabel('lang.text.page.label.nbcycle'); ?> <span id="cycle" class="label label-primary">0</span> &nbsp;&nbsp;
 			</div>
 
@@ -85,7 +87,6 @@
 				<span class="glyphicon glyphicon-hand-right"></span> <?php echo session::getInstance()->getLabel('lang.text.page.label.conso'); ?> <span id="consoPelletSaison" class="label label-primary">00,00 Kg</span> &nbsp;&nbsp;
 				<?php echo session::getInstance()->getLabel('lang.text.page.label.conso.ecs'); ?> <span id="consoEcsPelletSaison" class="label label-primary">00,00 Kg</span> &nbsp;&nbsp;
 				<span class="glyphicon glyphicon-arrow-up"></span> <?php echo session::getInstance()->getLabel('lang.text.page.label.tcmax'); ?> <span id="tcmaxSaison" class="label label-success">00,0 °C</span> &nbsp;&nbsp;
-				<span class="glyphicon glyphicon-arrow-right"></span> <?php echo session::getInstance()->getLabel('lang.text.page.label.tcmoy'); ?> <span id="tcmoySaison" class="label label-info">00,0 °C</span> &nbsp;&nbsp;
 				<span class="glyphicon glyphicon-arrow-down"></span> <?php echo session::getInstance()->getLabel('lang.text.page.label.tcmin'); ?> <span id="tcminSaison" class="label label-warning">00,0 °C</span> &nbsp;&nbsp;
 			</div>
 			<div class="col-md-3" align="right">
@@ -94,9 +95,10 @@
 				</select>
 			</div>
 			<div class="col-md-12">
-				<span class="glyphicon glyphicon-cloud"></span> <?php echo session::getInstance()->getLabel('lang.text.page.label.dju'); ?> <span id="djuSaison" class="label label-primary">0</span>
+				<span class="glyphicon glyphicon-cloud"></span> <?php echo session::getInstance()->getLabel('lang.text.page.label.dju'); ?> <span id="djuSaison" class="label label-primary">0</span> &nbsp;&nbsp;
+				<span class="glyphicon glyphicon-cloud"></span> DJmoy <span id="djmoySaison" class="label label-info">0</span> &nbsp;&nbsp;
+				<span class="glyphicon glyphicon-cloud"></span> DJe <span id="djeSaison" class="label label-info">0</span> &nbsp;&nbsp;
 				<span class="glyphicon glyphicon-hand-right"></span> <?php echo session::getInstance()->getLabel('lang.text.page.label.nbcycle'); ?> <span id="cycleSaison" class="label label-primary">0</span>
-			
 			</div>
 		</div>
 		
@@ -104,16 +106,21 @@
 		
 		<p>&nbsp;</p>
 		
-		<table id="recap" class="table table-hover">
+		<table id="recap" class="table table-hover table-responsive">
 	        <thead>
-	            <tr >
-	                <th class="col-md-2">Mois</th>
-	                <th class="col-md-2">Cycle Bruleur</th>
-	                <th class="col-md-2">DJU</th>
-					<th class="col-md-2">Conso (Kg)</th>
-					<th class="col-md-2">Dont ECS (Kg)</th>
-	                <th class="col-md-2">gr/DJU/m2</th>
-	                
+	            <tr>
+	                <th>Mois</th>
+	                <th>Cycles</th>
+	                <th>Durée comb</th>
+	                <th>Durée cycle</th>
+	                <th>DJU</th>
+	                <th>DJmoy</th>
+	                <th>DJe</th>
+	                <th>Conso</th>
+	                <th>ECS</th>
+	                <th>gr/DJU/m²</th>
+	                <th>gr/DJmoy/m²</th>
+	                <th>gr/DJe/m²</th>
 	            </tr>
 	        </thead>
 	    
