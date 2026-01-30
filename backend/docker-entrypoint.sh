@@ -1,3 +1,4 @@
+cat backend/docker-entrypoint.sh 
 #!/bin/bash
 set -e
 
@@ -5,7 +6,7 @@ echo "========================================"
 echo "  OKOVISION - Démarrage du container"
 echo "========================================"
 
-echo "[1/5] Configuration PHP..."
+echo "[1/6] Configuration PHP..."
 cat > /usr/local/etc/php/conf.d/okovision.ini << 'EOFINI'
 display_errors = Off
 error_reporting = E_ALL & ~E_NOTICE & ~E_WARNING & ~E_DEPRECATED
@@ -14,7 +15,7 @@ output_buffering = 4096
 EOFINI
 echo "    ✓ PHP configuré"
 
-echo "[2/5] Génération de config.php..."
+echo "[2/6] Génération de config.php..."
 cat > /var/www/okovision/config.php << 'EOFPHP'
 <?php
 if (!file_exists("config.json")) { header("Location: setup.php"); exit; }
@@ -50,7 +51,7 @@ DEFINE('TOKEN', $config['token'] ?? md5(uniqid()));
 EOFPHP
 echo "    ✓ config.php généré"
 
-echo "[3/5] Génération de config.json..."
+echo "[3/6] Génération de config.json..."
 CHAUDIERE_FULL="${CHAUDIERE_IP:-192.168.1.100}:${CHAUDIERE_PORT:-4321}"
 cat > /var/www/okovision/config.json << EOFJSON
 {
@@ -75,7 +76,32 @@ chmod -R 755 /var/www/okovision
 chmod -R 777 /var/www/okovision/_logs /var/www/okovision/_tmp
 echo "    ✓ Permissions OK"
 
-echo "[5/5] Démarrage cron..."
+echo "[5/6] Génération du cron avec variables d'environnement..."
+cat > /etc/cron.d/okovision-cron << EOFCRON
+# ===========================================
+# OKOVISION - Cron Import CSV Chaudière
+# ===========================================
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+BDD_IP=${BDD_IP:-192.168.1.200}
+BDD_USER=${BDD_USER:-okovision}
+BDD_PASS=${BDD_PASS:-changeme}
+BDD_SCHEMA=${BDD_SCHEMA:-okovision}
+
+# Import des données chaudière toutes les heures à 45 minutes
+22 * * * * www-data cd /var/www/okovision && /usr/local/bin/php cron.php >> /var/www/okovision/_logs/cron.log 2>&1
+
+# Nettoyage des logs une fois par semaine (dimanche 3h du matin)
+0 3 * * 0 www-data find /var/www/okovision/_logs -name "*.log" -mtime +30 -delete 2>/dev/null
+
+
+EOFCRON
+chmod 0644 /etc/cron.d/okovision-cron
+echo "    ✓ Cron généré"
+
+
+
+echo "[5/6] Démarrage cron..."
 service cron start
 echo "    ✓ Cron démarré"
 
@@ -88,3 +114,4 @@ echo "========================================"
 echo "Démarrage Apache..."
 
 exec "$@"
+
