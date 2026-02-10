@@ -1,7 +1,7 @@
 # Documentation Okovision Custom - Nouveaux Indicateurs
 
 **Date :** 27 janvier 2026  
-**Dépôt :** https://github.com/0x0c00d843-sketcher/okovision-custom  
+**Dépôt :** https://github.com/0x0c00d843-sketch/okovision-custom  
 **Machine :** homelab-okovision (Pi Zero 2W - 192.168.1.202)  
 **Statut :** ✅ Fonctionnel et déployé
 
@@ -249,6 +249,6 @@ Les graphiques Highcharts n'ont pas été modifiés. Les nouvelles données sont
 
 ## 🔗 Liens
 
-- **Dépôt GitHub :** https://github.com/0x0c00d843-sketcher/okovision-custom
+- **Dépôt GitHub :** https://github.com/0x0c00d843-sketch/okovision-custom
 - **Okovision original :** https://github.com/stawen/okovision (archivé)
 - **Documentation Modbus Ökofen :** https://www.oekofen.com/assets/austria/modbus_v208_home_automation.pdf
